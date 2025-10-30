@@ -94,7 +94,7 @@ export default function RecipeDetails() {
                         loading="lazy"
                         className="w-full rounded-xl shadow-sm hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="mt-4 flex items-center justify-between">
+                    <div className="mt-4 flex flex-wrap gap-2 items-center justify-between">
                         <p className="text-gray-500 text-sm">
                             Category:{" "}
                             <span className="font-medium text-gray-700">{meal.strCategory}</span>
@@ -103,6 +103,14 @@ export default function RecipeDetails() {
                             Area:{" "}
                             <span className="font-medium text-gray-700">{meal.strArea}</span>
                         </p>
+                        {
+                            meal.strTags && (
+                                <p className="text-gray-500 text-sm">
+                                    Tags:{" "}
+                                    <span className="font-medium text-gray-700">{meal.strTags.split(",").join(", ")}</span>
+                                </p>
+                            )
+                        }
                     </div>
                 </div>
 
