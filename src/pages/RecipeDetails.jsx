@@ -32,7 +32,7 @@ export default function RecipeDetails() {
             </div>
         );
 
-    // Ingredients
+    // Ingredients array
     const ingredients = [];
     for (let i = 1; i <= 20; i++) {
         const name = meal[`strIngredient${i}`];
@@ -47,19 +47,22 @@ export default function RecipeDetails() {
     return (
         <div className="bg-white p-6 md:p-10 rounded-2xl shadow-md border border-gray-100 animate-fadeIn">
             <div className="flex flex-col md:flex-row gap-8">
-                {/* Image Section */}
+                {/* ✅ Image Section with Lazy Loading */}
                 <div className="md:w-1/3">
                     <img
                         src={meal.strMealThumb}
                         alt={meal.strMeal}
+                        loading="lazy"
                         className="w-full rounded-xl shadow-sm hover:scale-105 transition-transform duration-300"
                     />
                     <div className="mt-4 flex items-center justify-between">
                         <p className="text-gray-500 text-sm">
-                            Category: <span className="font-medium text-gray-700">{meal.strCategory}</span>
+                            Category:{" "}
+                            <span className="font-medium text-gray-700">{meal.strCategory}</span>
                         </p>
                         <p className="text-gray-500 text-sm">
-                            Area: <span className="font-medium text-gray-700">{meal.strArea}</span>
+                            Area:{" "}
+                            <span className="font-medium text-gray-700">{meal.strArea}</span>
                         </p>
                     </div>
                 </div>
