@@ -153,7 +153,7 @@ export default function RecipeDetails() {
                             <h3 className="font-semibold text-lg text-gray-800 flex items-center gap-2 mb-2">
                                 <Youtube className="text-red-500" size={20} /> Watch Tutorial
                             </h3>
-                            <div className="aspect-video rounded-lg overflow-hidden shadow-sm">
+                            <div className="aspect-video rounded-lg overflow-hidden shadow-sm hidden lg:block">
                                 <iframe
                                     width="100%"
                                     height="315"
@@ -162,6 +162,7 @@ export default function RecipeDetails() {
                                     allowFullScreen
                                 ></iframe>
                             </div>
+                            <Link className="block lg:hidden bg-blue-500 text-center py-2 rounded-md text-white font-semibold" to={`https://www.youtube.com/watch?v=${videoId}`} target="_blank">Watch on Youtube</Link>
                         </div>
                     )}
 
