@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { toast } from "sonner"; // ✅ Import Sonner toast
 
 export default function RecipeCard({ meal }) {
     const [liked, setLiked] = useState(false);
@@ -20,9 +21,17 @@ export default function RecipeCard({ meal }) {
         if (liked) {
             // remove from favorites
             updatedFavorites = favorites.filter((fav) => fav.idMeal !== meal.idMeal);
+            toast.error("Removed from favorites 💔", {
+                position: "bottom-center",
+                duration: 1500,
+            });
         } else {
             // add to favorites
             updatedFavorites = [...favorites, meal];
+            toast.success("Added to favorites ❤️", {
+                position: "bottom-center",
+                duration: 1500,
+            });
         }
 
         localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
@@ -43,9 +52,7 @@ export default function RecipeCard({ meal }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-300"></div>
 
                 {/* View Recipe Button */}
-                <div
-                    className="absolute inset-x-0 bottom-3 flex justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition duration-300"
-                >
+                <div className="absolute inset-x-0 bottom-3 flex justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition duration-300">
                     <Link
                         to={`/meal/${meal.idMeal}`}
                         className="bg-white/90 text-gray-800 text-sm font-medium px-4 py-1.5 rounded-full shadow hover:bg-white transition"

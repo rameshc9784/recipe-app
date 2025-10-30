@@ -4,12 +4,14 @@ import Home from "./pages/Home";
 import RecipeDetails from "./pages/RecipeDetails";
 import Favorites from "./pages/Favorites";
 import { Heart, HomeIcon } from "lucide-react";
+import { Toaster } from "sonner";
 
 export default function App() {
   const location = useLocation();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 via-white to-emerald-50">
+      <Toaster richColors closeButton />
       {/* Header / Navbar */}
       <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">

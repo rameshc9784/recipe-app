@@ -17,7 +17,7 @@ export default function Home() {
     const [filters, setFilters] = useState({ category: "", ingredient: "" });
     const [loading, setLoading] = useState(false);
 
-    // Fetch filters once
+    // 🔹 Fetch filters once
     useEffect(() => {
         async function loadFilters() {
             try {
@@ -34,35 +34,55 @@ export default function Home() {
         loadFilters();
     }, []);
 
-    // Fetch meals whenever query or filters change
+    // 🔹 Default recipes on first load
     useEffect(() => {
-        async function fetchMeals() {
+        async function loadDefault() {
             setLoading(true);
             try {
-                let res;
-                if (query.trim()) {
-                    res = await searchMealsByName(query);
-                } else if (filters.ingredient) {
-                    res = await filterMeals({ i: filters.ingredient });
-                } else if (filters.category) {
-                    res = await filterMeals({ c: filters.category });
-                } else {
-                    // default fetch
-                    res = await searchMealsByName("a");
-                }
+                const res = await searchMealsByName("a");
                 setMeals(res.meals || []);
-            } catch (err) {
-                console.error("Error fetching meals:", err);
+            } catch {
                 setMeals([]);
             } finally {
                 setLoading(false);
             }
         }
+        loadDefault();
+    }, []);
 
-        // debounce for smooth typing
-        const timer = setTimeout(fetchMeals, 400);
-        return () => clearTimeout(timer);
-    }, [query, filters]);
+    // 🔹 Manual search handler (triggered from SearchBar button or Enter)
+    async function handleSearch() {
+        if (!query.trim()) return;
+        setLoading(true);
+        try {
+            const res = await searchMealsByName(query.trim());
+            setMeals(res.meals || []);
+        } catch {
+            setMeals([]);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // 🔹 Filters change handler
+    useEffect(() => {
+        async function filterData() {
+            if (!filters.category && !filters.ingredient) return;
+            setLoading(true);
+            try {
+                const res = await filterMeals({
+                    c: filters.category,
+                    i: filters.ingredient,
+                });
+                setMeals(res.meals || []);
+            } catch {
+                setMeals([]);
+            } finally {
+                setLoading(false);
+            }
+        }
+        filterData();
+    }, [filters]);
 
     return (
         <div className="min-h-screen">
@@ -81,7 +101,16 @@ export default function Home() {
                 <div className="bg-white/90 backdrop-blur-md shadow-md rounded-2xl p-6 border border-gray-100">
                     {/* 🔍 Search Bar */}
                     <div className="mb-4">
-                        <SearchBar value={query} onChange={setQuery} />
+                        <SearchBar
+                            value={query}
+                            onChange={setQuery}
+                            onSearch={handleSearch}
+                            onClear={async () => {
+                                setQuery("");
+                                const res = await searchMealsByName("a");
+                                setMeals(res.meals || []);
+                            }}
+                        />
                     </div>
 
                     {/* 🧂 Filters */}
