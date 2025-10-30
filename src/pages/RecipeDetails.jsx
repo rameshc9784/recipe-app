@@ -1,19 +1,58 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { lookupMealById } from "../api/meals";
-import { ArrowLeft, Youtube, UtensilsCrossed } from "lucide-react";
+import { ArrowLeft, Youtube, UtensilsCrossed, Heart } from "lucide-react";
+import { toast } from "sonner";
 
 export default function RecipeDetails() {
     const { id } = useParams();
     const [meal, setMeal] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [liked, setLiked] = useState(false);
 
+    // ✅ Fetch meal data
     useEffect(() => {
         setLoading(true);
         lookupMealById(id)
-            .then((res) => setMeal(res.meals ? res.meals[0] : null))
+            .then((res) => {
+                const fetchedMeal = res.meals ? res.meals[0] : null;
+                setMeal(fetchedMeal);
+
+                if (fetchedMeal) {
+                    const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+                    const isFav = favorites.some(fav => fav.idMeal === fetchedMeal.idMeal);
+                    setLiked(isFav);
+                }
+            })
             .finally(() => setLoading(false));
     }, [id]);
+
+    // ✅ Toggle Favourite
+    const toggleFavorite = () => {
+        if (!meal) return;
+        const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        let updatedFavorites;
+
+        if (liked) {
+            updatedFavorites = favorites.filter(fav => fav.idMeal !== meal.idMeal);
+            toast.error("Removed from favorites 💔", {
+                position: "bottom-center",
+                duration: 1500,
+            });
+        } else {
+            updatedFavorites = [...favorites, meal];
+            toast.success("Added to favorites ❤️", {
+                position: "bottom-center",
+                duration: 1500,
+            });
+        }
+
+        localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+        setLiked(!liked);
+
+        // ✅ Trigger custom event for favourites page to update in real time
+        window.dispatchEvent(new Event("favoritesUpdated"));
+    };
 
     if (loading)
         return (
@@ -32,7 +71,7 @@ export default function RecipeDetails() {
             </div>
         );
 
-    // Ingredients array
+    // ✅ Ingredients array
     const ingredients = [];
     for (let i = 1; i <= 20; i++) {
         const name = meal[`strIngredient${i}`];
@@ -40,14 +79,14 @@ export default function RecipeDetails() {
         if (name && name.trim()) ingredients.push({ name, measure });
     }
 
-    // YouTube video ID (for embed)
+    // ✅ YouTube video ID
     const youtube = meal.strYoutube;
     const videoId = youtube ? youtube.split("v=")[1] : null;
 
     return (
         <div className="bg-white p-6 md:p-10 rounded-2xl shadow-md border border-gray-100 animate-fadeIn">
             <div className="flex flex-col md:flex-row gap-8">
-                {/* ✅ Image Section with Lazy Loading */}
+                {/* 🖼️ Image Section */}
                 <div className="md:w-1/3">
                     <img
                         src={meal.strMealThumb}
@@ -67,11 +106,26 @@ export default function RecipeDetails() {
                     </div>
                 </div>
 
-                {/* Details Section */}
+                {/* 📋 Details Section */}
                 <div className="flex-1">
-                    <h1 className="text-3xl font-bold text-emerald-700 mb-3">{meal.strMeal}</h1>
+                    <div className="flex items-center justify-between mb-3">
+                        <h1 className="text-3xl font-bold text-emerald-700">{meal.strMeal}</h1>
 
-                    {/* Ingredients */}
+                        {/* ❤️ Like Button */}
+                        <button
+                            onClick={toggleFavorite}
+                            className="p-2 rounded-full shadow hover:scale-110 transition flex items-center gap-2 border border-gray-200"
+                            title={liked ? "Remove from favorites" : "Add to favorites"}
+                        >
+                            <Heart
+                                className={`w-6 h-6 transition-colors duration-300 ${liked ? "fill-red-500 text-red-500" : "text-gray-500"
+                                    }`}
+                            />
+
+                        </button>
+                    </div>
+
+                    {/* 🥣 Ingredients */}
                     <h3 className="font-semibold text-lg text-gray-800 flex items-center gap-2 mb-2">
                         <UtensilsCrossed size={18} /> Ingredients
                     </h3>
@@ -87,13 +141,13 @@ export default function RecipeDetails() {
                         ))}
                     </ul>
 
-                    {/* Instructions */}
+                    {/* 📖 Instructions */}
                     <h3 className="font-semibold text-lg text-gray-800 mb-2">Instructions</h3>
                     <p className="text-gray-700 leading-relaxed whitespace-pre-line mb-6">
                         {meal.strInstructions}
                     </p>
 
-                    {/* YouTube Video */}
+                    {/* ▶️ YouTube Video */}
                     {videoId && (
                         <div className="mt-6">
                             <h3 className="font-semibold text-lg text-gray-800 flex items-center gap-2 mb-2">
@@ -111,7 +165,7 @@ export default function RecipeDetails() {
                         </div>
                     )}
 
-                    {/* Back Button */}
+                    {/* 🔙 Back Button */}
                     <div className="mt-8">
                         <Link
                             to="/"
